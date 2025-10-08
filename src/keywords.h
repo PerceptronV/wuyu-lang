@@ -6,6 +6,106 @@
 
 namespace wuyu {
 
+// Chinese keyword constants
+namespace Keywords {
+    // Type keywords
+    const std::string INT = "數";
+    const std::string FLOAT = "分";
+    const std::string COMPLEX = "複";
+    const std::string BOOL = "問";
+    const std::string STRING = "文";
+    const std::string ARRAY = "列";
+    const std::string TENSOR = "陣";
+    const std::string CLASS = "類";
+    const std::string TYPE = "型";
+    const std::string FUNCTION = "術";
+    const std::string OBJECT = "物";
+    
+    // Boolean literals
+    const std::string TRUE = "是";
+    const std::string FALSE = "非";
+    
+    // Operator keywords
+    const std::string ADD = "益";
+    const std::string SUB = "損";
+    const std::string NEG = "負";
+    const std::string MUL = "乘";
+    const std::string POW = "冪";
+    const std::string DIV = "除";
+    const std::string FLOORDIV = "拆";
+    const std::string MOD = "餘";
+    const std::string INC = "增";
+    const std::string DEC = "削";
+    const std::string EQ = "如";
+    const std::string NEQ = "弗";
+    const std::string GT = "盈";
+    const std::string LT = "虧";
+    const std::string GTE = "滿";
+    const std::string LTE = "頂";
+    const std::string ASSIGN = "為";
+    
+    // Control flow keywords
+    const std::string FOR = "順";
+    const std::string WHILE = "循";
+    const std::string IF = "若";
+    const std::string THEN = "則";
+    const std::string ELSE_IF = "而";
+    const std::string ELSE = "然";
+    const std::string USING = "以";
+    const std::string IN = "通";
+    const std::string GRADUAL = "漸";
+    const std::string TO = "至";
+    const std::string LOOPER = "也";
+    const std::string SOLIDIFIER = "者";
+    
+    // Declaration keywords
+    const std::string LET = "有";
+    const std::string DEF = "設";
+    const std::string SELF = "己";
+    const std::string ACCESS = "之";
+    const std::string ALIAS = "號";
+    const std::string RETURN = "奏";
+    const std::string YIELD = "得";
+    const std::string INHERIT = "承";
+    const std::string IMPORT = "取";
+    
+    // Array/Function keywords
+    const std::string ARRAY_DECL = "廣";
+    const std::string INDEX = "其";
+    const std::string PARAM = "參";
+    const std::string CALL = "執";
+    
+    // Meta operator keywords
+    const std::string UNARY = "單";
+    const std::string BINARY = "雙";
+    const std::string CARGO = "載";
+    
+    // IO keywords
+    const std::string SAY = "曰";
+    const std::string ASK = "求";
+    const std::string NEWLINE_LIT = "更";
+    
+    // Error messages
+    const std::string ERROR_PREFIX = "錯：";
+    const std::string ERROR_NEEDS_PARAM = "需參數也。";
+    const std::string ERROR_UNKNOWN_OPTION = "未知則令也。";
+
+    // Punctuation
+    const std::string COMMA = "、";
+    const std::string COLON = "：";
+    const std::string PERIOD = "。";
+    const std::string LGROUP = "《";
+    const std::string RGROUP = "》";
+    const std::string LSTRING1 = "「";
+    const std::string RSTRING1 = "」";
+    const std::string LSTRING2 = "『";
+    const std::string RSTRING2 = "』";
+    const std::string LPAREN = "（";
+    const std::string RPAREN = "）";
+    const std::string SEPARATOR = "，";
+    const std::string COMMENT = "·";
+}
+
 // Token types
 enum class TokenType {
     // Literals
@@ -69,8 +169,8 @@ enum class TokenType {
     // Control flow
     KW_IF,          // 若
     KW_THEN,        // 則
-    KW_ELSE_IF,     // 或
-    KW_ELSE,        // 或則
+    KW_ELSE_IF,     // 而
+    KW_ELSE,        // 然
     KW_WHILE,       // 循
     KW_FOR,         // 順
     KW_IN,          // 通
@@ -83,7 +183,7 @@ enum class TokenType {
     KW_GRADUAL,     // 漸
     KW_TO,          // 至
     KW_USING,       // 以
-    KW_ALSO,        // 也
+    KW_LOOPER,      // 也
     KW_SOLIDIFIER,  // 者
     
     // Meta operators
@@ -93,7 +193,6 @@ enum class TokenType {
     
     // Punctuation
     COMMA,          // 、
-    SEPARATOR,      // ，
     COLON,          // ：
     PERIOD,         // 。
     LGROUP,         // 《
@@ -104,12 +203,13 @@ enum class TokenType {
     RSTRING2,       // 』
     LPAREN,         // (
     RPAREN,         // )
-    
+        
     // Special
     NEWLINE,
     INDENT,
     DEDENT,
     END_OF_FILE,
+    SEPARATOR,      // ，
     COMMENT,        // ·
     
     // IO
@@ -134,90 +234,6 @@ const std::unordered_map<char32_t, int> CHINESE_MULTIPLIERS = {
     {U'萬', 10000},
     {U'億', 100000000}
 };
-
-// Chinese keyword constants
-namespace Keywords {
-    // Type keywords
-    const std::string INT = "數";
-    const std::string FLOAT = "分";
-    const std::string COMPLEX = "複";
-    const std::string BOOL = "問";
-    const std::string STRING = "文";
-    const std::string ARRAY = "列";
-    const std::string TENSOR = "陣";
-    const std::string CLASS = "類";
-    const std::string TYPE = "型";
-    const std::string FUNCTION = "術";
-    const std::string OBJECT = "物";
-    
-    // Boolean literals
-    const std::string TRUE = "是";
-    const std::string FALSE = "非";
-    
-    // Operator keywords
-    const std::string ADD = "益";
-    const std::string SUB = "損";
-    const std::string NEG = "負";
-    const std::string MUL = "乘";
-    const std::string POW = "冪";
-    const std::string DIV = "除";
-    const std::string FLOORDIV = "拆";
-    const std::string MOD = "餘";
-    const std::string INC = "增";
-    const std::string DEC = "削";
-    const std::string EQ = "如";
-    const std::string NEQ = "弗";
-    const std::string GT = "盈";
-    const std::string LT = "虧";
-    const std::string GTE = "滿";
-    const std::string LTE = "頂";
-    const std::string ASSIGN = "為";
-    
-    // Control flow keywords
-    const std::string FOR = "順";
-    const std::string WHILE = "循";
-    const std::string IF = "若";
-    const std::string THEN = "則";
-    const std::string ELSE_IF = "或";
-    const std::string USING = "以";
-    const std::string IN = "通";
-    const std::string GRADUAL = "漸";
-    const std::string TO = "至";
-    const std::string ALSO = "也";
-    const std::string SOLIDIFIER = "者";
-    
-    // Declaration keywords
-    const std::string LET = "有";
-    const std::string DEF = "設";
-    const std::string SELF = "己";
-    const std::string ACCESS = "之";
-    const std::string ALIAS = "號";
-    const std::string RETURN = "奏";
-    const std::string YIELD = "得";
-    const std::string INHERIT = "承";
-    const std::string IMPORT = "取";
-    
-    // Array/Function keywords
-    const std::string ARRAY_DECL = "廣";
-    const std::string INDEX = "其";
-    const std::string PARAM = "參";
-    const std::string CALL = "執";
-    
-    // Meta operator keywords
-    const std::string UNARY = "單";
-    const std::string BINARY = "雙";
-    const std::string CARGO = "載";
-    
-    // IO keywords
-    const std::string SAY = "曰";
-    const std::string ASK = "求";
-    const std::string NEWLINE_LIT = "更";
-    
-    // Error messages
-    const std::string ERROR_PREFIX = "錯：";
-    const std::string ERROR_NEEDS_PARAM = "需參數也。";
-    const std::string ERROR_UNKNOWN_OPTION = "未知則令也。";
-}
 
 // Keywords mapping
 const std::unordered_map<std::string, TokenType> KEYWORDS = {
@@ -274,13 +290,14 @@ const std::unordered_map<std::string, TokenType> KEYWORDS = {
     {Keywords::IF, TokenType::KW_IF},
     {Keywords::THEN, TokenType::KW_THEN},
     {Keywords::ELSE_IF, TokenType::KW_ELSE_IF},
+    {Keywords::ELSE, TokenType::KW_ELSE},
     {Keywords::WHILE, TokenType::KW_WHILE},
     {Keywords::FOR, TokenType::KW_FOR},
     {Keywords::USING, TokenType::KW_USING},
     {Keywords::IN, TokenType::KW_IN},
     {Keywords::GRADUAL, TokenType::KW_GRADUAL},
     {Keywords::TO, TokenType::KW_TO},
-    {Keywords::ALSO, TokenType::KW_ALSO},
+    {Keywords::LOOPER, TokenType::KW_LOOPER},
     {Keywords::SOLIDIFIER, TokenType::KW_SOLIDIFIER},
     
     // Special keywords
@@ -303,19 +320,19 @@ const std::unordered_map<std::string, TokenType> KEYWORDS = {
 
 // Single-character tokens
 const std::unordered_map<std::string, TokenType> PUNCTUATION = {
-    {"、", TokenType::COMMA},
-    {"，", TokenType::SEPARATOR},
-    {"：", TokenType::COLON},
-    {"。", TokenType::PERIOD},
-    {"《", TokenType::LGROUP},
-    {"》", TokenType::RGROUP},
-    {"「", TokenType::LSTRING1},
-    {"」", TokenType::RSTRING1},
-    {"『", TokenType::LSTRING2},
-    {"』", TokenType::RSTRING2},
-    {"·", TokenType::COMMENT},
-    {"(", TokenType::LPAREN},
-    {")", TokenType::RPAREN}
+    {Keywords::COMMA, TokenType::COMMA},
+    {Keywords::SEPARATOR, TokenType::SEPARATOR},
+    {Keywords::COLON, TokenType::COLON},
+    {Keywords::PERIOD, TokenType::PERIOD},
+    {Keywords::LGROUP, TokenType::LGROUP},
+    {Keywords::RGROUP, TokenType::RGROUP},
+    {Keywords::LSTRING1, TokenType::LSTRING1},
+    {Keywords::RSTRING1, TokenType::RSTRING1},
+    {Keywords::LSTRING2, TokenType::LSTRING2},
+    {Keywords::RSTRING2, TokenType::RSTRING2},
+    {Keywords::COMMENT, TokenType::COMMENT},
+    {Keywords::LPAREN, TokenType::LPAREN},
+    {Keywords::RPAREN, TokenType::RPAREN}
 };
 
 inline std::string tokenTypeToString(TokenType type) {
@@ -334,7 +351,7 @@ inline std::string tokenTypeToString(TokenType type) {
         case TokenType::TYPE_FUNCTION: return "TYPE_FUNCTION";
         case TokenType::KW_PARAM: return "KW_PARAM";
         case TokenType::TYPE_INT: return "TYPE_INT";
-        case TokenType::KW_ALSO: return "KW_ALSO";
+        case TokenType::KW_LOOPER: return "KW_LOOPER";
         case TokenType::KW_YIELD: return "KW_YIELD";
         case TokenType::KW_RETURN: return "KW_RETURN";
         case TokenType::OP_ASSIGN: return "OP_ASSIGN";

@@ -95,7 +95,7 @@ cd wuyu-lang
 ```wuyu
 若甲盈零則           · if (甲 > 0)
     曰：「正數」：更。  · cout << "正數" << endl;
-或則
+而則
     曰：「非正數」：更。
 
 循甲虧十也           · while (甲 < 10)
@@ -112,7 +112,7 @@ cd wuyu-lang
 設術階乘參數量者得數           · int factorial(int n)
     若量頂一則
         奏一。
-    或則
+    然則
         奏量乘階乘執量損一者。 · return n * factorial(n - 1);
 
 有數果為階乘執五者。
@@ -168,8 +168,8 @@ cat 心血來潮.ll
 | define | 設 |
 | if | 若 |
 | then | 則 |
-| else if | 或 |
-| else | 或則 |
+| else if | 而 |
+| else | 然則 |
 | while | 循 |
 | for | 順 |
 | function | 術 |

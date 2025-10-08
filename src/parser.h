@@ -107,8 +107,16 @@ private:
                 return parseUnaryOpOverload();
             } else if (check(TokenType::KW_BINARY)) {
                 return parseBinaryOpOverload();
+            } else if (check(TokenType::KW_CARGO)) {
+                return parseCargoOverload();
             }
-            throw std::runtime_error("Expected 術, 類, 單, or 雙 after 設");
+            throw std::runtime_error("Expected " +
+                                     Keywords::FUNCTION + ", " +
+                                     Keywords::CLASS + ", " + 
+                                     Keywords::UNARY + ", " +
+                                     Keywords::BINARY + ", or" +
+                                     Keywords::CARGO + " after " +
+                                     Keywords::DEF);
         }
         
         // Import statement: 取「...」
@@ -168,7 +176,7 @@ private:
             initializer = parseExpression();
         }
         
-        consume(TokenType::PERIOD, "Expected 。 after variable declaration");
+        consume(TokenType::PERIOD, "Expected " + Keywords::PERIOD + " after variable declaration");
         skipNewlines();
         
         return std::make_unique<VarDeclStmtAST>(typeToken.lexeme, nameToken.lexeme, 
@@ -179,7 +187,7 @@ private:
         Token nameToken = consume(TokenType::IDENTIFIER, "Expected array name");
         skipNewlines();
         
-        consume(TokenType::KW_ARRAY_DECL, "Expected 廣 for array declaration");
+        consume(TokenType::KW_ARRAY_DECL, "Expected " + Keywords::ARRAY_DECL + " for array declaration");
         
         std::vector<ExprPtr> dimensions;
         dimensions.push_back(parseExpression());
@@ -188,7 +196,7 @@ private:
             dimensions.push_back(parseExpression());
         }
         
-        consume(TokenType::KW_SOLIDIFIER, "Expected 者 after array dimensions");
+        consume(TokenType::KW_SOLIDIFIER, "Expected " + Keywords::SOLIDIFIER + " after array dimensions");
         skipNewlines();
         
         ExprPtr initializer = nullptr;
@@ -196,7 +204,7 @@ private:
             initializer = parseExpression();
         }
         
-        consume(TokenType::PERIOD, "Expected 。 after array declaration");
+        consume(TokenType::PERIOD, "Expected " + Keywords::PERIOD + " after array declaration");
         skipNewlines();
         
         return std::make_unique<ArrayDeclStmtAST>(elemType, nameToken.lexeme, 
@@ -205,7 +213,7 @@ private:
     
     StmtPtr parseFunctionDecl() {
         // 設術name，參x、y者，得數
-        consume(TokenType::TYPE_FUNCTION, "Expected 術 after 設");
+        consume(TokenType::TYPE_FUNCTION, "Expected " + Keywords::FUNCTION + " after " + Keywords::DEF);
         Token nameToken = consume(TokenType::IDENTIFIER, "Expected function name");
         skipNewlines();
         
@@ -219,7 +227,7 @@ private:
                 params.push_back({typeToken.lexeme, paramName.lexeme});
             } while (match(TokenType::COMMA));
             
-            consume(TokenType::KW_SOLIDIFIER, "Expected 者 after parameters");
+            consume(TokenType::KW_SOLIDIFIER, "Expected " + Keywords::SOLIDIFIER + " after parameters");
         }
         
         skipNewlines();
@@ -241,7 +249,7 @@ private:
     
     StmtPtr parseClassDecl() {
         // 設類name or 設類name承base
-        consume(TokenType::TYPE_CLASS, "Expected 類 after 設");
+        consume(TokenType::TYPE_CLASS, "Expected " + Keywords::CLASS + " after " + Keywords::DEF);
         Token nameToken = consume(TokenType::IDENTIFIER, "Expected class name");
         
         std::string baseClass = "";
@@ -260,7 +268,7 @@ private:
     
     StmtPtr parseUnaryOpOverload() {
         // 設單增
-        consume(TokenType::KW_UNARY, "Expected 單");
+        consume(TokenType::KW_UNARY, "Expected " + Keywords::UNARY);
         Token opToken = advance();  // Get the operator
         
         skipNewlines();
@@ -271,7 +279,7 @@ private:
     
     StmtPtr parseBinaryOpOverload() {
         // 設雙益，參人他者
-        consume(TokenType::KW_BINARY, "Expected 雙");
+        consume(TokenType::KW_BINARY, "Expected " + Keywords::BINARY);
         Token opToken = advance();  // Get the operator
         skipNewlines();
         
@@ -283,7 +291,7 @@ private:
             Token nameToken = consume(TokenType::IDENTIFIER, "Expected parameter name");
             paramType = typeToken.lexeme;
             paramName = nameToken.lexeme;
-            consume(TokenType::KW_SOLIDIFIER, "Expected 者 after parameter");
+            consume(TokenType::KW_SOLIDIFIER, "Expected " + Keywords::SOLIDIFIER + " after parameter");
         }
         
         skipNewlines();
@@ -291,6 +299,17 @@ private:
         
         return std::make_unique<BinaryOpOverloadAST>(opToken.lexeme, paramType, 
                                                      paramName, std::move(body));
+    }
+
+    StmtPtr parseCargoOverload() {
+        // 設載
+        consume(TokenType::KW_CARGO, "Expected " + Keywords::CARGO);
+        Token opToken = advance();  // Get the operator
+        skipNewlines();
+        
+        std::vector<StmtPtr> body = parseBlock();
+        
+        return std::make_unique<CargoOpOverloadAST>(opToken.lexeme, std::move(body));
     }
     
     StmtPtr parseImportStmt() {
@@ -301,11 +320,11 @@ private:
             // Already consumed 『
         } else if (check(TokenType::STRING)) {
             Token moduleToken = advance();
-            consume(TokenType::PERIOD, "Expected 。 after import statement");
+            consume(TokenType::PERIOD, "Expected " + Keywords::PERIOD + " after import statement");
             skipNewlines();
             return std::make_unique<ImportStmtAST>(moduleToken.stringValue);
         } else {
-            throw std::runtime_error("Expected string after 取");
+            throw std::runtime_error("Expected string after " + Keywords::IMPORT);
         }
         
         // Parse string content
@@ -319,7 +338,7 @@ private:
             // Closing quote
         }
         
-        consume(TokenType::PERIOD, "Expected 。 after import statement");
+        consume(TokenType::PERIOD, "Expected " + Keywords::PERIOD + " after import statement");
         skipNewlines();
         
         return std::make_unique<ImportStmtAST>(modulePath);
@@ -331,7 +350,7 @@ private:
         std::vector<ExprPtr> expressions;
         
         // Require at least one colon-initiated expression
-        consume(TokenType::COLON, "Expected ： after 曰");
+        consume(TokenType::COLON, "Expected " + Keywords::COLON + " after " + Keywords::SAY);
         expressions.push_back(parseExpression());
         
         while (true) {
@@ -346,7 +365,7 @@ private:
             break;
         }
         
-        consume(TokenType::PERIOD, "Expected 。 after print statement");
+        consume(TokenType::PERIOD, "Expected " + Keywords::PERIOD + " after print statement");
         skipNewlines();
         
         return std::make_unique<PrintStmtAST>(std::move(expressions));
@@ -354,9 +373,9 @@ private:
     
     StmtPtr parseInputStmt() {
         // 求：x。
-        consume(TokenType::COLON, "Expected ： after 求");
+        consume(TokenType::COLON, "Expected " + Keywords::COLON + " after " + Keywords::ASK);
         Token varToken = consume(TokenType::IDENTIFIER, "Expected variable name");
-        consume(TokenType::PERIOD, "Expected 。 after input statement");
+        consume(TokenType::PERIOD, "Expected " + Keywords::PERIOD + " after input statement");
         skipNewlines();
         
         return std::make_unique<InputStmtAST>(varToken.lexeme);
@@ -366,24 +385,24 @@ private:
         // 若condition則body
         ExprPtr condition = parseExpression();
         skipNewlines();
-        consume(TokenType::KW_THEN, "Expected 則 after if condition");
+        consume(TokenType::KW_THEN, "Expected " + Keywords::THEN + " after if condition");
         skipNewlines();
         
         std::vector<StmtPtr> thenBranch = parseBlock();
         std::vector<StmtPtr> elseBranch;
         
-        // Handle else: 或則
+        // Handle else if: 而condition則
         if (match(TokenType::KW_ELSE_IF)) {
-            // Check if it's "或則" (else) or just "或" (else if)
-            if (match(TokenType::KW_THEN)) {
-                // This is 或則 (else)
-                skipNewlines();
-                elseBranch = parseBlock();
-            } else {
-                // This is 或condition則 (else if) - parse as nested if
-                auto nestedIf = parseIfStmt();
-                elseBranch.push_back(std::move(nestedIf));
-            }
+            // This is 而condition則 (else if) - parse as nested if
+            auto nestedIf = parseIfStmt();
+            elseBranch.push_back(std::move(nestedIf));
+        }
+        // Handle else: 然
+        else if (match(TokenType::KW_ELSE)) {
+            skipNewlines();
+            consume(TokenType::KW_THEN, "Expected " + Keywords::THEN + " after " + Keywords::ELSE);
+            skipNewlines();
+            elseBranch = parseBlock();
         }
         
         return std::make_unique<IfStmtAST>(std::move(condition), std::move(thenBranch), 
@@ -393,7 +412,7 @@ private:
     StmtPtr parseWhileStmt() {
         // 循condition也body
         ExprPtr condition = parseExpression();
-        consume(TokenType::KW_ALSO, "Expected 也 after while condition");
+        consume(TokenType::KW_LOOPER, "Expected " + Keywords::LOOPER + " after while condition");
         skipNewlines();
         
         std::vector<StmtPtr> body = parseBlock();
@@ -418,33 +437,33 @@ private:
         Token varToken = consume(TokenType::IDENTIFIER, "Expected loop variable");
         varName = varToken.lexeme;
         
-        consume(TokenType::OP_ASSIGN, "Expected 為 after loop variable");
+        consume(TokenType::OP_ASSIGN, "Expected " + Keywords::ASSIGN + " after loop variable");
         ExprPtr start = parseExpression();
         
         // Branch on either '漸' or '以'
         if (match(TokenType::KW_GRADUAL)) {
             // Counting form: 漸 <step> 至 <end>
             ExprPtr step = parseExpression();
-            consume(TokenType::KW_TO, "Expected 至 in for loop");
+            consume(TokenType::KW_TO, "Expected " + Keywords::TO + " in for loop");
             ExprPtr end = parseExpression();
-            consume(TokenType::KW_ALSO, "Expected 也 after for loop header");
+            consume(TokenType::KW_LOOPER, "Expected " + Keywords::LOOPER + " after for loop header");
             skipNewlines();
             std::vector<StmtPtr> body = parseBlock();
             return std::make_unique<ForStmtAST>(varName, std::move(start), std::move(step), std::move(end), std::move(body));
         } else {
             // Using form: 以 <x> 為 <expr1> 至 <expr2> 也
-            consume(TokenType::KW_USING, "Expected 漸 or 以 in for loop");
+            consume(TokenType::KW_USING, "Expected " + Keywords::GRADUAL + " or " + Keywords::USING + " in for loop");
             // The grammar in docs shows '以<x>為<expr1>至<expr2>' where <x> repeats the var
             // Accept either the same identifier or skip if omitted
             if (check(TokenType::IDENTIFIER)) {
                 Token repeatVar = advance();
                 (void)repeatVar; // ignore name; we assume same var
             }
-            consume(TokenType::OP_ASSIGN, "Expected 為 in using-form for loop");
+            consume(TokenType::OP_ASSIGN, "Expected " + Keywords::ASSIGN + " in using-form for loop");
             ExprPtr update = parseExpression();
-            consume(TokenType::KW_TO, "Expected 至 in using-form for loop");
+            consume(TokenType::KW_TO, "Expected " + Keywords::TO + " in using-form for loop");
             ExprPtr condition = parseExpression();
-            consume(TokenType::KW_ALSO, "Expected 也 after for loop header");
+            consume(TokenType::KW_LOOPER, "Expected " + Keywords::LOOPER + " after for loop header");
             skipNewlines();
             std::vector<StmtPtr> body = parseBlock();
             return std::make_unique<ForStmtAST>(varName, std::move(start), std::move(update), std::move(condition), std::move(body), true);
@@ -456,7 +475,7 @@ private:
         if (!check(TokenType::PERIOD)) {
             value = parseExpression();
         }
-        consume(TokenType::PERIOD, "Expected 。 after return statement");
+        consume(TokenType::PERIOD, "Expected " + Keywords::PERIOD + " after return statement");
         skipNewlines();
         
         return std::make_unique<ReturnStmtAST>(std::move(value));
@@ -473,7 +492,7 @@ private:
             auto* indexExpr = dynamic_cast<IndexExprAST*>(expr.get());
             
             ExprPtr value = parseExpression();
-            consume(TokenType::PERIOD, "Expected 。 after assignment");
+            consume(TokenType::PERIOD, "Expected " + Keywords::PERIOD + " after assignment");
             skipNewlines();
             
             if (varExpr) {
@@ -496,7 +515,7 @@ private:
             }
         }
         
-        consume(TokenType::PERIOD, "Expected 。 after expression");
+        consume(TokenType::PERIOD, "Expected " + Keywords::PERIOD + " after expression");
         skipNewlines();
         
         return std::make_unique<ExprStmtAST>(std::move(expr));
@@ -512,7 +531,7 @@ private:
                 auto stmt = parseStatement();
                 if (stmt) statements.push_back(std::move(stmt));
             }
-            consume(TokenType::RGROUP, "Expected 》 to close block");
+            consume(TokenType::RGROUP, "Expected " + Keywords::RGROUP + " to close block");
             skipNewlines();
             return statements;
         }
@@ -623,7 +642,7 @@ private:
                     indices.push_back(parseExpression());
                 }
                 
-                consume(TokenType::KW_SOLIDIFIER, "Expected 者 after array index");
+                consume(TokenType::KW_SOLIDIFIER, "Expected " + Keywords::SOLIDIFIER + " after array index");
                 
                 // Get array name
                 auto* varExpr = dynamic_cast<VariableExprAST*>(expr.get());
@@ -647,7 +666,7 @@ private:
                     }
                 }
                 
-                consume(TokenType::KW_SOLIDIFIER, "Expected 者 after function arguments");
+                consume(TokenType::KW_SOLIDIFIER, "Expected " + Keywords::SOLIDIFIER + " after function arguments");
                 
                 // Get function name
                 auto* varExpr = dynamic_cast<VariableExprAST*>(expr.get());
@@ -724,14 +743,14 @@ private:
         // Grouped expression: 《expr》
         if (match(TokenType::LGROUP)) {
             ExprPtr expr = parseExpression();
-            consume(TokenType::RGROUP, "Expected 》 after grouped expression");
+            consume(TokenType::RGROUP, "Expected " + Keywords::RGROUP + " after grouped expression");
             return expr;
         }
         
         // Parenthesized expression
         if (match(TokenType::LPAREN)) {
             ExprPtr expr = parseExpression();
-            consume(TokenType::RPAREN, "Expected ) after expression");
+            consume(TokenType::RPAREN, "Expected " + Keywords::RPAREN + " after expression");
             return expr;
         }
         

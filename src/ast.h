@@ -48,14 +48,14 @@ class StringExprAST : public ExprAST {
 public:
     std::string value;
     StringExprAST(const std::string& value) : value(value) {}
-    std::string toString() const override { return "「" + value + "」"; }
+    std::string toString() const override { return Keywords::LSTRING1 + value + Keywords::RSTRING1; }
 };
 
 class BoolExprAST : public ExprAST {
 public:
     bool value;
     BoolExprAST(bool value) : value(value) {}
-    std::string toString() const override { return value ? "是" : "非"; }
+    std::string toString() const override { return value ? Keywords::TRUE : Keywords::FALSE; }
 };
 
 // Variable reference
@@ -77,7 +77,7 @@ public:
         : op(op), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
     
     std::string toString() const override {
-        return "(" + lhs->toString() + " " + op + " " + rhs->toString() + ")";
+        return Keywords::LPAREN + lhs->toString() + " " + op + " " + rhs->toString() + Keywords::RPAREN;
     }
 };
 
@@ -91,7 +91,21 @@ public:
         : op(op), operand(std::move(operand)) {}
     
     std::string toString() const override {
-        return "(" + op + " " + operand->toString() + ")";
+        return Keywords::LPAREN + op + " " + operand->toString() + Keywords::RPAREN;
+    }
+};
+
+// Cargo operation
+class CargoExprAST : public ExprAST {
+public:
+    std::string op;
+    ExprPtr operand;
+
+    CargoExprAST(const std::string& op, ExprPtr operand)
+        : op(op), operand(std::move(operand)) {}
+    
+    std::string toString() const override {
+        return Keywords::LPAREN + op + " " + operand->toString() + Keywords::RPAREN;
     }
 };
 
@@ -107,10 +121,10 @@ public:
     std::string toString() const override {
         std::string result = callee + Keywords::CALL;
         for (size_t i = 0; i < args.size(); i++) {
-            if (i > 0) result += "、";
+            if (i > 0) result += Keywords::COMMA;
             result += args[i]->toString();
         }
-        result += Keywords::ALSO;
+        result += Keywords::SOLIDIFIER;
         return result;
     }
 };
@@ -127,10 +141,10 @@ public:
     std::string toString() const override {
         std::string result = arrayName + Keywords::INDEX;
         for (size_t i = 0; i < indices.size(); i++) {
-            if (i > 0) result += "、";
+            if (i > 0) result += Keywords::COMMA;
             result += indices[i]->toString();
         }
-        result += Keywords::ALSO;
+        result += Keywords::SOLIDIFIER;
         return result;
     }
 };
@@ -164,7 +178,7 @@ public:
         if (initializer) {
             result += Keywords::ASSIGN + initializer->toString();
         }
-        return result + "。";
+        return result + Keywords::PERIOD;
     }
 };
 
@@ -182,12 +196,12 @@ public:
           initializer(std::move(initializer)) {}
     
     std::string toString() const override {
-        std::string result = Keywords::LET + type + "列" + name + Keywords::ARRAY_DECL;
+        std::string result = Keywords::LET + type + Keywords::ARRAY + name + Keywords::ARRAY_DECL;
         for (size_t i = 0; i < dimensions.size(); i++) {
-            if (i > 0) result += "、";
+            if (i > 0) result += Keywords::COMMA;
             result += dimensions[i]->toString();
         }
-        result += Keywords::ALSO;
+        result += Keywords::SOLIDIFIER;
         return result;
     }
 };
@@ -202,7 +216,7 @@ public:
         : varName(varName), value(std::move(value)) {}
     
     std::string toString() const override {
-        return varName + Keywords::ASSIGN + value->toString() + "。";
+        return varName + Keywords::ASSIGN + value->toString() + Keywords::PERIOD;
     }
 };
 
@@ -217,7 +231,7 @@ public:
         : arrayName(arrayName), indices(std::move(indices)), value(std::move(value)) {}
     
     std::string toString() const override {
-        return arrayName + "其...者為" + value->toString() + "。";
+        return arrayName + Keywords::INDEX + "..." + Keywords::SOLIDIFIER + Keywords::ASSIGN + value->toString() + Keywords::PERIOD;
     }
 };
 
@@ -229,7 +243,7 @@ public:
     ExprStmtAST(ExprPtr expr) : expr(std::move(expr)) {}
     
     std::string toString() const override {
-        return expr->toString() + "。";
+        return expr->toString() + Keywords::PERIOD;
     }
 };
 
@@ -242,11 +256,11 @@ public:
         : expressions(std::move(expressions)) {}
     
     std::string toString() const override {
-        std::string result = "曰：";
+        std::string result = Keywords::SAY + Keywords::COLON;
         for (const auto& expr : expressions) {
             result += expr->toString();
         }
-        return result + "。";
+        return result + Keywords::PERIOD;
     }
 };
 
@@ -258,7 +272,7 @@ public:
     InputStmtAST(const std::string& varName) : varName(varName) {}
     
     std::string toString() const override {
-        return "求：" + varName + "。";
+        return Keywords::ASK + Keywords::COLON + varName + Keywords::PERIOD;
     }
 };
 
@@ -275,7 +289,7 @@ public:
           elseBranch(std::move(elseBranch)) {}
     
     std::string toString() const override {
-        return "若" + condition->toString() + "則...";
+        return Keywords::IF + condition->toString() + Keywords::THEN + "...";
     }
 };
 
@@ -289,7 +303,7 @@ public:
         : condition(std::move(condition)), body(std::move(body)) {}
     
     std::string toString() const override {
-        return "循" + condition->toString() + "也...";
+        return Keywords::WHILE + condition->toString() + Keywords::LOOPER + "...";
     }
 };
 
@@ -322,10 +336,10 @@ public:
     std::string toString() const override {
         if (!isUsingForm) {
             return Keywords::FOR + Keywords::INT + varName + Keywords::ASSIGN + start->toString() + Keywords::GRADUAL + 
-                   step->toString() + Keywords::TO + end->toString() + Keywords::ALSO + "...";
+                   step->toString() + Keywords::TO + end->toString() + Keywords::LOOPER + "...";
         }
         return Keywords::FOR + varName + Keywords::USING + varName + Keywords::ASSIGN + update->toString() +
-               Keywords::TO + condition->toString() + Keywords::ALSO + "...";
+               Keywords::TO + condition->toString() + Keywords::LOOPER + "...";
     }
 };
 
@@ -345,7 +359,7 @@ public:
           body(std::move(body)) {}
     
     std::string toString() const override {
-        return "設術" + name + "...";
+        return Keywords::DEF + Keywords::FUNCTION + name + "...";
     }
 };
 
@@ -357,8 +371,8 @@ public:
     ReturnStmtAST(ExprPtr value = nullptr) : value(std::move(value)) {}
     
     std::string toString() const override {
-        if (value) return Keywords::RETURN + value->toString() + "。";
-        return Keywords::RETURN + "。";
+        if (value) return Keywords::RETURN + value->toString() + Keywords::PERIOD;
+        return Keywords::RETURN + Keywords::PERIOD;
     }
 };
 
@@ -371,7 +385,7 @@ public:
         : statements(std::move(statements)) {}
     
     std::string toString() const override {
-        return "《...》";
+        return Keywords::LGROUP + "..." + Keywords::RGROUP;
     }
 };
 
@@ -387,7 +401,7 @@ public:
         : name(name), baseClass(baseClass), members(std::move(members)) {}
     
     std::string toString() const override {
-        std::string result = "設類" + name;
+        std::string result = Keywords::DEF + Keywords::CLASS + name;
         if (!baseClass.empty()) {
             result += Keywords::INHERIT + baseClass;
         }
@@ -413,7 +427,7 @@ public:
           body(std::move(body)), isConstructor(isConstructor) {}
     
     std::string toString() const override {
-        return "設術" + name + "...";
+        return Keywords::DEF + Keywords::FUNCTION + name + "...";
     }
 };
 
@@ -427,7 +441,7 @@ public:
         : op(op), body(std::move(body)) {}
     
     std::string toString() const override {
-        return "設單" + op + "...";
+        return Keywords::DEF + Keywords::FUNCTION + op + "...";
     }
 };
 
@@ -445,7 +459,21 @@ public:
           body(std::move(body)) {}
     
     std::string toString() const override {
-        return "設雙" + op + "...";
+        return Keywords::DEF + Keywords::FUNCTION + op + "...";
+    }
+};
+
+// Cargo operator overload
+class CargoOpOverloadAST : public StmtAST {
+public:
+    std::string op;
+    std::vector<StmtPtr> body;
+    
+    CargoOpOverloadAST(const std::string& op, std::vector<StmtPtr> body)
+        : op(op), body(std::move(body)) {}
+    
+    std::string toString() const override {
+        return Keywords::DEF + Keywords::FUNCTION + op + "...";
     }
 };
 
@@ -457,7 +485,7 @@ public:
     ImportStmtAST(const std::string& modulePath) : modulePath(modulePath) {}
     
     std::string toString() const override {
-        return "取「" + modulePath + "」";
+        return Keywords::IMPORT + Keywords::LSTRING1 + modulePath + Keywords::RSTRING1;
     }
 };
 
