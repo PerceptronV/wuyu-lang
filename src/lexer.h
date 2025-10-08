@@ -1,6 +1,7 @@
 #pragma once
 
 #include "token.h"
+#include "keywords.h"
 #include "utils/numbers.h"
 #include <vector>
 #include <string>
@@ -96,7 +97,7 @@ private:
         }
         
         // Skip blank lines and comments
-        if (isAtEnd() || peek() == U'\n' || peek() == U'·') {
+        if (isAtEnd() || peek() == U'\n' || peek() == Char32_t_keywords::COMMENT) {
             return;
         }
         
@@ -121,7 +122,7 @@ private:
         char32_t c = peek();
         
         // Skip whitespace (except newlines)
-        if (c == U' ' || c == U'\t') {
+        if (c == U' ' || c == Char32_t_keywords::SEPARATOR || c == U'\t') {
             advance();
             return;
         }
@@ -140,7 +141,7 @@ private:
         }
         
         // Comments
-        if (c == U'·') {
+        if (c == Char32_t_keywords::COMMENT) {
             while (!isAtEnd() && peek() != U'\n') {
                 advance();
             }
@@ -148,7 +149,7 @@ private:
         }
         
         // String literals
-        if (c == U'「' || c == U'『') {
+        if (c == Char32_t_keywords::LSTRING1 || c == Char32_t_keywords::LSTRING2) {
             scanString(c);
             return;
         }
@@ -239,7 +240,7 @@ private:
     void scanString(char32_t quote) {
         advance(); // Skip opening quote
         std::u32string value;
-        char32_t closeQuote = (quote == U'「') ? U'」' : U'』';
+        char32_t closeQuote = (quote == Char32_t_keywords::LSTRING1) ? Char32_t_keywords::RSTRING1 : Char32_t_keywords::RSTRING2;
         
         while (!isAtEnd() && peek() != closeQuote) {
             if (peek() == U'\n') {
@@ -306,10 +307,9 @@ private:
         // Use unified Chinese number parsing from utils/numbers.h
         std::u32string u32str = converter.from_bytes(str);
         
-        // Check if it contains a decimal point (點/点)
-        bool hasDecimal = (u32str.find(U'點') != std::u32string::npos) || 
-                         (u32str.find(U'点') != std::u32string::npos) ||
-                         (u32str.find(U'.') != std::u32string::npos);
+        // Check if it contains a decimal point (點)
+        bool hasDecimal = (u32str.find(CHINESE_DECIMAL_POINT) != std::u32string::npos) || 
+                          (u32str.find(U'.') != std::u32string::npos);
         
         Token token(hasDecimal ? TokenType::FLOAT : TokenType::INTEGER, str, line, column);
         if (hasDecimal) {

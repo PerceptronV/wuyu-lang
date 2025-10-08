@@ -90,7 +90,7 @@ namespace Keywords {
     const std::string ERROR_NEEDS_PARAM = "需參數也。";
     const std::string ERROR_UNKNOWN_OPTION = "未知則令也。";
 
-    // Punctuation
+    // Punctuation (strings)
     const std::string COMMA = "、";
     const std::string COLON = "：";
     const std::string PERIOD = "。";
@@ -104,6 +104,23 @@ namespace Keywords {
     const std::string RPAREN = "）";
     const std::string SEPARATOR = "，";
     const std::string COMMENT = "·";
+}
+
+// Punctuation character constants for lexer
+namespace Char32_t_keywords {
+    constexpr char32_t COMMA = U'、';
+    constexpr char32_t COLON = U'：';
+    constexpr char32_t PERIOD = U'。';
+    constexpr char32_t LGROUP = U'《';
+    constexpr char32_t RGROUP = U'》';
+    constexpr char32_t LSTRING1 = U'「';
+    constexpr char32_t RSTRING1 = U'」';
+    constexpr char32_t LSTRING2 = U'『';
+    constexpr char32_t RSTRING2 = U'』';
+    constexpr char32_t LPAREN = U'（';
+    constexpr char32_t RPAREN = U'）';
+    constexpr char32_t SEPARATOR = U'，';
+    constexpr char32_t COMMENT = U'·';
 }
 
 // Chinese number characters
