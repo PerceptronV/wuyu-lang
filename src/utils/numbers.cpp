@@ -63,8 +63,8 @@ int64_t parseChineseInteger(const std::u32string& s) {
     bool negative = false;
 
     size_t startIdx = 0;
-    // Check for negative sign: 負 (traditional) or 负 (simplified)
-    if (!s.empty() && (s[0] == U'負' || s[0] == U'负')) {
+    // Check for negative sign: 負 (traditional)
+    if (!s.empty() && (s[0] == CHINESE_NEGATIVE_SIGN || s[0] == U'-')) {
         negative = true;
         startIdx = 1;
     }
@@ -112,8 +112,8 @@ int64_t parseChineseInteger(const std::u32string& s) {
 
 double parseChineseFloat(const std::u32string& s) {
     // Find decimal point: 點 (traditional) or 点 (simplified) or ASCII '.'
-    size_t posDot = s.find(U'點');
-    if (posDot == std::u32string::npos) posDot = s.find(U'点');
+    size_t posDot = s.find(CHINESE_DECIMAL_POINT);
+    if (posDot == std::u32string::npos) posDot = s.find(CHINESE_DECIMAL_POINT);
     if (posDot == std::u32string::npos) posDot = s.find(U'.');
 
     // If no decimal point, parse as integer

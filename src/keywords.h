@@ -106,6 +106,24 @@ namespace Keywords {
     const std::string COMMENT = "·";
 }
 
+// Chinese number characters
+const std::unordered_map<char32_t, int> CHINESE_DIGITS = {
+    {U'零', 0}, {U'一', 1}, {U'二', 2}, {U'三', 3}, {U'四', 4},
+    {U'五', 5}, {U'六', 6}, {U'七', 7}, {U'八', 8}, {U'九', 9},
+    {U'點', -1} // decimal point
+};
+
+const std::unordered_map<char32_t, int> CHINESE_MULTIPLIERS = {
+    {U'十', 10},
+    {U'百', 100},
+    {U'千', 1000},
+    {U'萬', 10000},
+    {U'億', 100000000}
+};
+
+const char32_t CHINESE_NEGATIVE_SIGN = U'負';
+const char32_t CHINESE_DECIMAL_POINT = U'點';
+
 // Token types
 enum class TokenType {
     // Literals
@@ -218,21 +236,6 @@ enum class TokenType {
     LIT_NEWLINE,    // 更 (newline literal)
     
     UNKNOWN
-};
-
-// Chinese number characters
-const std::unordered_map<char32_t, int> CHINESE_DIGITS = {
-    {U'零', 0}, {U'一', 1}, {U'二', 2}, {U'三', 3}, {U'四', 4},
-    {U'五', 5}, {U'六', 6}, {U'七', 7}, {U'八', 8}, {U'九', 9},
-    {U'點', -1} // decimal point
-};
-
-const std::unordered_map<char32_t, int> CHINESE_MULTIPLIERS = {
-    {U'十', 10},
-    {U'百', 100},
-    {U'千', 1000},
-    {U'萬', 10000},
-    {U'億', 100000000}
 };
 
 // Keywords mapping
